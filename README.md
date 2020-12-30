@@ -3,8 +3,8 @@
 I put together a small 3D hex grid for a game I was working on, and there was some interest in how I achieved that.  I extracted that code into this repository for people to learn from.
 
 It was heavily inspired by two main resources:
- - [https://www.redblobgames.com/grids/hexagons/#map-storage](RedBlobGames' excellent writeup on hex grids)
- - [https://catlikecoding.com/unity/tutorials/hex-map/](Catlike Coding's tutorial series on hex grids in unity)
+ - [Redblobgames' excellent writeup on hex grids](https://www.redblobgames.com/grids/hexagons/#map-storage)
+ - [Catlike Coding's tutorial series on hex grids in unity](https://catlikecoding.com/unity/tutorials/hex-map/)
 
 ## Outline
 
