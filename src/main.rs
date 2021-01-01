@@ -1,5 +1,8 @@
-#![feature(exclusive_range_pattern)]
-use bevy::{input::system::exit_on_esc_system, prelude::*, render::{camera::Camera, mesh::Indices, pipeline::PrimitiveTopology}};
+use bevy::{
+    input::system::exit_on_esc_system,
+    prelude::*,
+    render::{camera::Camera, mesh::Indices, pipeline::PrimitiveTopology},
+};
 use rand::prelude::*;
 
 mod geometry;
@@ -45,23 +48,22 @@ fn sample_level(
     let mut rng = rand::thread_rng();
     for q in -15..15 {
         for r in -15..15 {
-            let tile = match rng.gen_range(0..10) {
-                0..5 => 0,
-                5..7 => 1,
-                _ => 2,
+            let tile = rng.gen_range(0..10);
+            let tile = if tile > 0 && tile < 5 {
+                0
+            } else if tile >= 5 && tile < 7 {
+                1
+            } else {
+                2
             };
             let color = colors[tile].clone();
             let height = match tile {
                 0 => 0.,
                 1 => 0.5 + rng.gen_range(-0.2..0.2),
                 2 => 2. + rng.gen_range(-0.5..0.5),
-                _ => unreachable!()
+                _ => unreachable!(),
             };
-            let pos = geometry::center(
-                1.0,
-                &hex::HexCoord::new(q, r),
-                &[0., height, 0.],
-            );
+            let pos = geometry::center(1.0, &hex::HexCoord::new(q, r), &[0., height, 0.]);
             add_hex(
                 Vec3::new(pos[0], pos[1], pos[2]),
                 color,
@@ -160,10 +162,6 @@ pub fn water_ripple(time: Res<Time>, mut q: Query<&mut Transform, With<Water>>) 
         let ripple1 = (time / 2. + (x / 3.) + (z / 3.)).sin() * 0.1 - 0.05;
         let ripple2 = (time + (x / 3.) - (z / 4.)).cos() * 0.1 - 0.05;
         let ripple3 = (time * 2. + (x / 5.) - (z / 7.)).sin() * 0.1 - 0.05;
-        t.translation = Vec3::new(
-            x,
-            ripple1 + ripple2 + ripple3,
-            z,
-        );
+        t.translation = Vec3::new(x, ripple1 + ripple2 + ripple3, z);
     }
 }
