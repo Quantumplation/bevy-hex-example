@@ -1,11 +1,13 @@
 [package]
-name = "bevy-hex-example"
+name = "bevy_hex"
 version = "0.1.0"
 authors = ["Pi Lanningham <pi@attentivemobile.com>"]
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+edition = "2021"
 
 [dependencies]
-rand = "0.8.0"
-bevy = "0.4.0"
+rand = "0.8.5"
+bevy = { version = "0.8.1" }
+
+
+[profile.dev]
+opt-level = 3
