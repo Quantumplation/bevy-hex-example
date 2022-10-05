@@ -12,7 +12,6 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_startup_system(sample_level)
         .add_system(keyboard_controls)
-        .add_system(water_ripple)
         .run();
 }
 
@@ -25,7 +24,7 @@ fn sample_level(
     commands
         // camera
         .spawn_bundle(Camera3dBundle {
-            transform: Transform::from_translation(Vec3::new(-10.0, 15., 0.0))
+            transform: Transform::from_translation(Vec3::new(-5.0, 18., 0.0))
                 .looking_at(Vec3::default(), Vec3::Y),
             ..Default::default()
         });
@@ -34,6 +33,10 @@ fn sample_level(
         // light
         .spawn_bundle(PointLightBundle {
             transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
+            point_light: PointLight {
+                intensity: 5000.0,
+                ..default()
+            },
             ..Default::default()
         });
 
@@ -45,8 +48,8 @@ fn sample_level(
     // Generate our hex mesh
     let mesh = meshes.add(generate_hex_mesh()).clone();
     let mut rng = rand::thread_rng();
-    for q in -15..15 {
-        for r in -15..15 {
+    for q in -7..7 {
+        for r in -7..7 {
             let tile = rng.gen_range(0..10);
             let tile = if tile > 0 && tile < 5 {
                 0
@@ -56,12 +59,7 @@ fn sample_level(
                 2
             };
             let color = colors[tile].clone();
-            let height = match tile {
-                0 => 0.,
-                1 => 0.5 + rng.gen_range(-0.2..0.2),
-                2 => 2. + rng.gen_range(-0.5..0.5),
-                _ => unreachable!(),
-            };
+            let height = 0.;
             let pos = geometry::center(1.0, &hex::HexCoord::new(q, r), &[0., height, 0.]);
 
             commands.spawn_bundle(PbrBundle {
@@ -70,10 +68,6 @@ fn sample_level(
                 transform: Transform::from_translation(Vec3::new(pos[0], pos[1], pos[2])),
                 ..Default::default()
             });
-
-            if tile == 0 {
-                // commands.insert(Water);
-            }
         }
     }
 }
@@ -134,19 +128,4 @@ pub fn keyboard_controls(
     }
 
     transform.translation = pos;
-}
-
-#[derive(Component)]
-pub struct Water;
-/// Ripple water tiles slightly
-pub fn water_ripple(time: Res<Time>, mut q: Query<&mut Transform, With<Water>>) {
-    let time = time.seconds_since_startup() as f32;
-    for mut t in q.iter_mut() {
-        let (x, z) = (t.translation.x, t.translation.z);
-
-        let ripple1 = (time / 2. + (x / 3.) + (z / 3.)).sin() * 0.1 - 0.05;
-        let ripple2 = (time + (x / 3.) - (z / 4.)).cos() * 0.1 - 0.05;
-        let ripple3 = (time * 2. + (x / 5.) - (z / 7.)).sin() * 0.1 - 0.05;
-        t.translation = Vec3::new(x, ripple1 + ripple2 + ripple3, z);
-    }
 }
