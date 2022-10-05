@@ -1,5 +1,5 @@
 [package]
-name = "bevy_hex"
+name = "bevy-hex-example"
 version = "0.1.0"
 authors = ["Pi Lanningham <pi@attentivemobile.com>"]
 edition = "2021"
@@ -7,7 +7,3 @@ edition = "2021"
 [dependencies]
 rand = "0.8.5"
 bevy = { version = "0.8.1" }
-
-
-[profile.dev]
-opt-level = 3

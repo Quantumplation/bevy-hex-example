@@ -33,31 +33,42 @@ impl Direction {
     }
 }
 
-/// All directions, for convenient enumeration
-pub const DIRECTIONS: &[Direction] = &[Direction::North, Direction::Northeast, Direction::Southeast, Direction::South, Direction::Southwest, Direction::Northwest];
-
 impl HexCoord {
     /// The origin of an infinite hex grid
-    pub fn origin() -> Self { HexCoord { q: 0, r: 0, s: 0 } }
+    pub fn origin() -> Self {
+        HexCoord { q: 0, r: 0, s: 0 }
+    }
     /// Construct a hex coordinate from two pieces of information, enforcing the invariant on the third
     pub fn new(q: isize, r: isize) -> Self {
         HexCoord { q, r, s: -q - r }
     }
 
     /// The coordinate to the north
-    pub fn north(&self)     -> Self { Self::new(self.q + 0, self.r - 1) }
+    pub fn north(&self) -> Self {
+        Self::new(self.q + 0, self.r - 1)
+    }
     /// The coordinate to the south
-    pub fn south(&self)     -> Self { Self::new(self.q + 0, self.r + 1) }
+    pub fn south(&self) -> Self {
+        Self::new(self.q + 0, self.r + 1)
+    }
 
     /// The coordinate to the northeast
-    pub fn northeast(&self) -> Self { Self::new(self.q + 1, self.r - 1) }
+    pub fn northeast(&self) -> Self {
+        Self::new(self.q + 1, self.r - 1)
+    }
     /// The coordinate to the southwest
-    pub fn southwest(&self) -> Self { Self::new(self.q - 1, self.r + 1) }
+    pub fn southwest(&self) -> Self {
+        Self::new(self.q - 1, self.r + 1)
+    }
 
     /// The coordinate to the northwest
-    pub fn northwest(&self) -> Self { Self::new(self.q - 1,self.r + 0) }
+    pub fn northwest(&self) -> Self {
+        Self::new(self.q - 1, self.r + 0)
+    }
     /// The coordinate to the southeast
-    pub fn southeast(&self) -> Self { Self::new(self.q + 1,self.r + 0) }
+    pub fn southeast(&self) -> Self {
+        Self::new(self.q + 1, self.r + 0)
+    }
 
     /// The coordinate in a specific direction
     pub fn neighbor(&self, dir: Direction) -> Self {
@@ -75,15 +86,32 @@ impl HexCoord {
 
     /// Yield the neighbor coordinates, starting from North and going clockwise
     pub fn neighbors<'a>(&'a self) -> impl Iterator<Item = HexCoord> + 'a {
-        struct NeighborIter<'a> { c: &'a HexCoord, iter: std::slice::Iter<'a, Direction> }
+        struct NeighborIter<'a> {
+            c: &'a HexCoord,
+            iter: std::slice::Iter<'a, Direction>,
+        }
         impl<'a> Iterator for NeighborIter<'a> {
             type Item = HexCoord;
-            fn next(&mut self) -> Option<Self::Item> { self.iter.next().map(|d| self.c.neighbor(d.clone())) }
+            fn next(&mut self) -> Option<Self::Item> {
+                self.iter.next().map(|d| self.c.neighbor(d.clone()))
+            }
         }
-        NeighborIter { c: self, iter: DIRECTIONS.iter() }
+        NeighborIter {
+            c: self,
+            iter: DIRECTIONS.iter(),
+        }
     }
 }
 
+/// All directions, for convenient enumeration
+pub const DIRECTIONS: &[Direction] = &[
+    Direction::North,
+    Direction::Northeast,
+    Direction::Southeast,
+    Direction::South,
+    Direction::Southwest,
+    Direction::Northwest,
+];
 
 #[cfg(test)]
 mod tests {

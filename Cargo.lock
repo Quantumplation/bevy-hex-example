@@ -185,6 +185,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy-hex-example"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "rand",
+]
+
+[[package]]
 name = "bevy_animation"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -399,14 +407,6 @@ dependencies = [
  "gltf",
  "percent-encoding",
  "thiserror",
-]
-
-[[package]]
-name = "bevy_hex"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "rand",
 ]
 
 [[package]]

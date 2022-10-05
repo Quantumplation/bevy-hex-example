@@ -9,6 +9,7 @@ mod hex;
 
 fn main() {
     App::new()
+        .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
         .add_startup_system(sample_level)
         .add_system(keyboard_controls)
@@ -64,7 +65,7 @@ fn sample_level(
             };
             let pos = geometry::center(1.0, &hex::HexCoord::new(q, r), &[0., height, 0.]);
 
-            commands.spawn_bundle(PbrBundle {
+            let mut cmd = commands.spawn_bundle(PbrBundle {
                 mesh: mesh.clone(),
                 material: materials.add(color.into()),
                 transform: Transform::from_translation(Vec3::new(pos[0], pos[1], pos[2])),
@@ -72,7 +73,7 @@ fn sample_level(
             });
 
             if tile == 0 {
-                // commands.insert(Water);
+                cmd.insert(Water);
             }
         }
     }
