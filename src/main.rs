@@ -1,7 +1,6 @@
 use bevy::{
-    input::system::exit_on_esc_system,
     prelude::*,
-    render::{camera::Camera, mesh::Indices, pipeline::PrimitiveTopology},
+    render::{camera::Camera, mesh::Indices, render_resource::PrimitiveTopology},
 };
 use rand::prelude::*;
 
@@ -9,31 +8,32 @@ mod geometry;
 mod hex;
 
 fn main() {
-    App::build()
-        .add_resource(Msaa { samples: 4 })
+    App::new()
+        .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
-        .add_system(exit_on_esc_system.system())
-        .add_startup_system(sample_level.system())
-        .add_system(keyboard_controls.system())
-        .add_system(water_ripple.system())
+        .add_startup_system(sample_level)
+        .add_system(keyboard_controls)
+        .add_system(water_ripple)
         .run();
 }
 
 fn sample_level(
-    commands: &mut Commands,
+    mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // add entities to the world
     commands
         // camera
-        .spawn(Camera3dBundle {
+        .spawn_bundle(Camera3dBundle {
             transform: Transform::from_translation(Vec3::new(-10.0, 15., 0.0))
-                .looking_at(Vec3::default(), Vec3::unit_y()),
+                .looking_at(Vec3::default(), Vec3::Y),
             ..Default::default()
-        })
+        });
+
+    commands
         // light
-        .spawn(LightBundle {
+        .spawn_bundle(PointLightBundle {
             transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
             ..Default::default()
         });
@@ -44,7 +44,7 @@ fn sample_level(
         Color::rgb(0.722, 0.522, 0.380), // Hills ##B88561 (184, 133, 97)
     ];
     // Generate our hex mesh
-    let mesh = meshes.add(generate_hex_mesh());
+    let mesh = meshes.add(generate_hex_mesh()).clone();
     let mut rng = rand::thread_rng();
     for q in -15..15 {
         for r in -15..15 {
@@ -64,34 +64,19 @@ fn sample_level(
                 _ => unreachable!(),
             };
             let pos = geometry::center(1.0, &hex::HexCoord::new(q, r), &[0., height, 0.]);
-            add_hex(
-                Vec3::new(pos[0], pos[1], pos[2]),
-                color,
-                mesh.clone(),
-                commands,
-                &mut materials,
-            );
+
+            let mut cmd = commands.spawn_bundle(PbrBundle {
+                mesh: mesh.clone(),
+                material: materials.add(color.into()),
+                transform: Transform::from_translation(Vec3::new(pos[0], pos[1], pos[2])),
+                ..Default::default()
+            });
+
             if tile == 0 {
-                commands.with(Water);
+                cmd.insert(Water);
             }
         }
     }
-}
-
-/// Spawn a hex in the world
-fn add_hex(
-    position: Vec3,
-    color: Color,
-    mesh: Handle<Mesh>,
-    commands: &mut Commands,
-    materials: &mut ResMut<Assets<StandardMaterial>>,
-) {
-    commands.spawn(PbrBundle {
-        mesh,
-        material: materials.add(color.into()),
-        transform: Transform::from_translation(position),
-        ..Default::default()
-    });
 }
 
 /// Generate a single hex mesh
@@ -113,9 +98,9 @@ fn generate_hex_mesh() -> Mesh {
 
     let mut mesh = Mesh::new(PrimitiveTopology::TriangleList);
     mesh.set_indices(Some(Indices::U32(indices)));
-    mesh.set_attribute(Mesh::ATTRIBUTE_POSITION, pts);
-    mesh.set_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
-    mesh.set_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
+    mesh.insert_attribute(Mesh::ATTRIBUTE_POSITION, pts);
+    mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
+    mesh.insert_attribute(Mesh::ATTRIBUTE_UV_0, uvs);
     mesh
 }
 
@@ -152,6 +137,7 @@ pub fn keyboard_controls(
     transform.translation = pos;
 }
 
+#[derive(Component)]
 pub struct Water;
 /// Ripple water tiles slightly
 pub fn water_ripple(time: Res<Time>, mut q: Query<&mut Transform, With<Water>>) {
