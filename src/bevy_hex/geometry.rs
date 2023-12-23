@@ -1,4 +1,4 @@
-use crate::hex::HexCoord;
+use super::hex::HexCoord;
 
 /// The ratio between a circle touching the points of a hex grid (the outer radius),
 /// and a circle touching the edges of a hex grid (the inner radius).
@@ -7,6 +7,7 @@ pub const HEX_INNER_RADIUS_RATIO: f32 = 0.866_025_4;
 
 /// Generate a point located at the center of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`.
 /// The parameters are used to compose larger effects like beveling
+#[must_use]
 pub fn center(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Get floating point hex-coords
     let (qf, rf) = (c.q as f32, c.r as f32);
@@ -29,6 +30,7 @@ pub fn center(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
 }
 
 /// Generate a pointed located at the eastern corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -37,6 +39,7 @@ pub fn east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
 }
 
 /// Generate a pointed located at the western corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -45,6 +48,7 @@ pub fn west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
 }
 
 /// Generate a pointed located at the north-east corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn north_east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -55,6 +59,7 @@ pub fn north_east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 
 }
 
 /// Generate a pointed located at the north-west corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn north_west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -65,6 +70,7 @@ pub fn north_west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 
 }
 
 /// Generate a pointed located at the south-east corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn south_east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -75,6 +81,7 @@ pub fn south_east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 
 }
 
 /// Generate a pointed located at the south-west corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn south_west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);

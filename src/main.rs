@@ -4,8 +4,7 @@ use bevy::{
 };
 use rand::prelude::*;
 
-mod geometry;
-mod hex;
+use bevy_hex_example::{geometry, hex};
 
 fn main() {
     App::new()
