@@ -48,14 +48,14 @@ fn sample_level(
     for q in -15..15 {
         for r in -15..15 {
             let tile = rng.gen_range(0..10);
-            let tile = if tile > 0 && tile < 5 {
+            let tile = if (1..5).contains(&tile) {
                 0
-            } else if tile >= 5 && tile < 7 {
+            } else if (5..7).contains(&tile) {
                 1
             } else {
                 2
             };
-            let color = colors[tile].clone();
+            let color = colors[tile];
             let height = match tile {
                 0 => 0.,
                 1 => 0.5 + rng.gen_range(-0.2..0.2),
@@ -111,37 +111,38 @@ pub fn keyboard_controls(
     time: Res<Time>,
     mut query: Query<(&mut Transform, &Camera)>,
 ) {
-    let (mut transform, _camera) = query.iter_mut().next().unwrap();
-    let speed = 10.;
-    let forward = Vec3::new(1., 0., 0.);
-    let left = Vec3::new(0., 0., -1.);
-    let up = Vec3::new(0., 1., 0.);
-    let mut pos = transform.translation.clone();
-    if input.pressed(KeyCode::W) {
-        pos += speed * forward * time.delta_seconds();
-    } else if input.pressed(KeyCode::S) {
-        pos -= speed * forward * time.delta_seconds();
-    }
-    if input.pressed(KeyCode::A) {
-        pos += speed * left * time.delta_seconds();
-    } else if input.pressed(KeyCode::D) {
-        pos -= speed * left * time.delta_seconds();
-    }
-    if input.pressed(KeyCode::Q) {
-        pos += speed * up * time.delta_seconds();
-    } else if input.pressed(KeyCode::E) {
-        pos -= speed * up * time.delta_seconds();
-    }
+    if let Some((mut transform, _camera)) = query.iter_mut().next() {
+        let speed = 10.;
+        let forward = Vec3::new(1., 0., 0.);
+        let left = Vec3::new(0., 0., -1.);
+        let up = Vec3::new(0., 1., 0.);
+        let mut pos = transform.translation;
+        if input.pressed(KeyCode::W) {
+            pos += speed * forward * time.delta_seconds();
+        } else if input.pressed(KeyCode::S) {
+            pos -= speed * forward * time.delta_seconds();
+        }
+        if input.pressed(KeyCode::A) {
+            pos += speed * left * time.delta_seconds();
+        } else if input.pressed(KeyCode::D) {
+            pos -= speed * left * time.delta_seconds();
+        }
+        if input.pressed(KeyCode::Q) {
+            pos += speed * up * time.delta_seconds();
+        } else if input.pressed(KeyCode::E) {
+            pos -= speed * up * time.delta_seconds();
+        }
 
-    transform.translation = pos;
+        transform.translation = pos;
+    }
 }
 
 #[derive(Component)]
 pub struct Water;
 /// Ripple water tiles slightly
 pub fn water_ripple(time: Res<Time>, mut q: Query<&mut Transform, With<Water>>) {
-    let time = time.elapsed_seconds() as f32;
-    for mut t in q.iter_mut() {
+    let time = time.elapsed_seconds();
+    for mut t in &mut q {
         let (x, z) = (t.translation.x, t.translation.z);
 
         let ripple1 = (time / 2. + (x / 3.) + (z / 3.)).sin() * 0.1 - 0.05;
