@@ -9,11 +9,10 @@ mod hex;
 
 fn main() {
     App::new()
-        .insert_resource(Msaa { samples: 4 })
+        .insert_resource(Msaa::Sample4)
         .add_plugins(DefaultPlugins)
-        .add_startup_system(sample_level)
-        .add_system(keyboard_controls)
-        .add_system(water_ripple)
+        .add_systems(Startup, sample_level)
+        .add_systems(Update, (keyboard_controls, water_ripple))
         .run();
 }
 
@@ -25,7 +24,7 @@ fn sample_level(
     // add entities to the world
     commands
         // camera
-        .spawn_bundle(Camera3dBundle {
+        .spawn(Camera3dBundle {
             transform: Transform::from_translation(Vec3::new(-10.0, 15., 0.0))
                 .looking_at(Vec3::default(), Vec3::Y),
             ..Default::default()
@@ -33,7 +32,7 @@ fn sample_level(
 
     commands
         // light
-        .spawn_bundle(PointLightBundle {
+        .spawn(PointLightBundle {
             transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
             ..Default::default()
         });
@@ -65,7 +64,7 @@ fn sample_level(
             };
             let pos = geometry::center(1.0, &hex::HexCoord::new(q, r), &[0., height, 0.]);
 
-            let mut cmd = commands.spawn_bundle(PbrBundle {
+            let mut cmd = commands.spawn(PbrBundle {
                 mesh: mesh.clone(),
                 material: materials.add(color.into()),
                 transform: Transform::from_translation(Vec3::new(pos[0], pos[1], pos[2])),
@@ -141,7 +140,7 @@ pub fn keyboard_controls(
 pub struct Water;
 /// Ripple water tiles slightly
 pub fn water_ripple(time: Res<Time>, mut q: Query<&mut Transform, With<Water>>) {
-    let time = time.seconds_since_startup() as f32;
+    let time = time.elapsed_seconds() as f32;
     for mut t in q.iter_mut() {
         let (x, z) = (t.translation.x, t.translation.z);
 

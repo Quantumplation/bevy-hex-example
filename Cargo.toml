@@ -1,9 +1,18 @@
 [package]
 name = "bevy-hex-example"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Pi Lanningham <pi@attentivemobile.com>"]
 edition = "2021"
 
+[profile.dev.package."*"]
+opt-level = 3
+
 [dependencies]
 rand = "0.8.5"
-bevy = { version = "0.8.1" }
+bevy = { version = "0.12.1", default-features = false, features = [
+    "bevy_pbr",
+    "multi-threaded",
+    "tonemapping_luts",
+    "wayland",
+    "x11",
+] }
