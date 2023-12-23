@@ -4,16 +4,14 @@ use bevy::{
 };
 use rand::prelude::*;
 
-mod geometry;
-mod hex;
+use bevy_hex_example::{geometry, hex};
 
 fn main() {
     App::new()
-        .insert_resource(Msaa { samples: 4 })
+        .insert_resource(Msaa::Sample4)
         .add_plugins(DefaultPlugins)
-        .add_startup_system(sample_level)
-        .add_system(keyboard_controls)
-        .add_system(water_ripple)
+        .add_systems(Startup, sample_level)
+        .add_systems(Update, (keyboard_controls, water_ripple))
         .run();
 }
 
@@ -25,7 +23,7 @@ fn sample_level(
     // add entities to the world
     commands
         // camera
-        .spawn_bundle(Camera3dBundle {
+        .spawn(Camera3dBundle {
             transform: Transform::from_translation(Vec3::new(-10.0, 15., 0.0))
                 .looking_at(Vec3::default(), Vec3::Y),
             ..Default::default()
@@ -33,7 +31,7 @@ fn sample_level(
 
     commands
         // light
-        .spawn_bundle(PointLightBundle {
+        .spawn(PointLightBundle {
             transform: Transform::from_translation(Vec3::new(4.0, 8.0, 4.0)),
             ..Default::default()
         });
@@ -49,14 +47,14 @@ fn sample_level(
     for q in -15..15 {
         for r in -15..15 {
             let tile = rng.gen_range(0..10);
-            let tile = if tile > 0 && tile < 5 {
+            let tile = if (1..5).contains(&tile) {
                 0
-            } else if tile >= 5 && tile < 7 {
+            } else if (5..7).contains(&tile) {
                 1
             } else {
                 2
             };
-            let color = colors[tile].clone();
+            let color = colors[tile];
             let height = match tile {
                 0 => 0.,
                 1 => 0.5 + rng.gen_range(-0.2..0.2),
@@ -65,7 +63,7 @@ fn sample_level(
             };
             let pos = geometry::center(1.0, &hex::HexCoord::new(q, r), &[0., height, 0.]);
 
-            let mut cmd = commands.spawn_bundle(PbrBundle {
+            let mut cmd = commands.spawn(PbrBundle {
                 mesh: mesh.clone(),
                 material: materials.add(color.into()),
                 transform: Transform::from_translation(Vec3::new(pos[0], pos[1], pos[2])),
@@ -112,37 +110,38 @@ pub fn keyboard_controls(
     time: Res<Time>,
     mut query: Query<(&mut Transform, &Camera)>,
 ) {
-    let (mut transform, _camera) = query.iter_mut().next().unwrap();
-    let speed = 10.;
-    let forward = Vec3::new(1., 0., 0.);
-    let left = Vec3::new(0., 0., -1.);
-    let up = Vec3::new(0., 1., 0.);
-    let mut pos = transform.translation.clone();
-    if input.pressed(KeyCode::W) {
-        pos += speed * forward * time.delta_seconds();
-    } else if input.pressed(KeyCode::S) {
-        pos -= speed * forward * time.delta_seconds();
-    }
-    if input.pressed(KeyCode::A) {
-        pos += speed * left * time.delta_seconds();
-    } else if input.pressed(KeyCode::D) {
-        pos -= speed * left * time.delta_seconds();
-    }
-    if input.pressed(KeyCode::Q) {
-        pos += speed * up * time.delta_seconds();
-    } else if input.pressed(KeyCode::E) {
-        pos -= speed * up * time.delta_seconds();
-    }
+    if let Some((mut transform, _camera)) = query.iter_mut().next() {
+        let speed = 10.;
+        let forward = Vec3::new(1., 0., 0.);
+        let left = Vec3::new(0., 0., -1.);
+        let up = Vec3::new(0., 1., 0.);
+        let mut pos = transform.translation;
+        if input.pressed(KeyCode::W) {
+            pos += speed * forward * time.delta_seconds();
+        } else if input.pressed(KeyCode::S) {
+            pos -= speed * forward * time.delta_seconds();
+        }
+        if input.pressed(KeyCode::A) {
+            pos += speed * left * time.delta_seconds();
+        } else if input.pressed(KeyCode::D) {
+            pos -= speed * left * time.delta_seconds();
+        }
+        if input.pressed(KeyCode::Q) {
+            pos += speed * up * time.delta_seconds();
+        } else if input.pressed(KeyCode::E) {
+            pos -= speed * up * time.delta_seconds();
+        }
 
-    transform.translation = pos;
+        transform.translation = pos;
+    }
 }
 
 #[derive(Component)]
 pub struct Water;
 /// Ripple water tiles slightly
 pub fn water_ripple(time: Res<Time>, mut q: Query<&mut Transform, With<Water>>) {
-    let time = time.seconds_since_startup() as f32;
-    for mut t in q.iter_mut() {
+    let time = time.elapsed_seconds();
+    for mut t in &mut q {
         let (x, z) = (t.translation.x, t.translation.z);
 
         let ripple1 = (time / 2. + (x / 3.) + (z / 3.)).sin() * 0.1 - 0.05;

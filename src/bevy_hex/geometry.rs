@@ -1,12 +1,13 @@
-use crate::hex::HexCoord;
+use super::hex::HexCoord;
 
 /// The ratio between a circle touching the points of a hex grid (the outer radius),
 /// and a circle touching the edges of a hex grid (the inner radius).
 /// Calculated as sqrt(3) / 2;
-pub const HEX_INNER_RADIUS_RATIO: f32 = 0.866025404;
+pub const HEX_INNER_RADIUS_RATIO: f32 = 0.866_025_4;
 
 /// Generate a point located at the center of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`.
 /// The parameters are used to compose larger effects like beveling
+#[must_use]
 pub fn center(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Get floating point hex-coords
     let (qf, rf) = (c.q as f32, c.r as f32);
@@ -23,12 +24,13 @@ pub fn center(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     let x = (start + row_adjustment + rhombus_adjustment) * inner * 2.;
     // Each row moves us by 1.5 times the outer radius along the z axis
     let z = rf * outer * 1.5;
-    
+
     // Return (x,0,z) shifted by the provided offset
     [x + offset[0], 0. + offset[1], z + offset[2]]
 }
 
 /// Generate a pointed located at the eastern corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -37,6 +39,7 @@ pub fn east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
 }
 
 /// Generate a pointed located at the western corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -45,6 +48,7 @@ pub fn west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
 }
 
 /// Generate a pointed located at the north-east corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn north_east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -55,6 +59,7 @@ pub fn north_east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 
 }
 
 /// Generate a pointed located at the north-west corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn north_west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -65,6 +70,7 @@ pub fn north_west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 
 }
 
 /// Generate a pointed located at the south-east corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn south_east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -75,6 +81,7 @@ pub fn south_east_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 
 }
 
 /// Generate a pointed located at the south-west corner of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`
+#[must_use]
 pub fn south_west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 3] {
     // Start from the center of our hexagon
     let center = center(radius, c, offset);
@@ -86,16 +93,19 @@ pub fn south_west_corner(radius: f32, c: &HexCoord, offset: &[f32; 3]) -> [f32; 
 
 /// Fill `pts` with the points around the edge of a flat hexagon of a specific radius at a specific coordinate
 pub fn flat_hexagon_ring(pts: &mut Vec<[f32; 3]>, radius: f32, c: &HexCoord, offset: &[f32; 3]) {
-    pts.extend([
-        east_corner(radius, c, offset),       // Each of the corners, counter-clockwise from the east corner
-        north_east_corner(radius, c, offset), // ...
-        north_west_corner(radius, c, offset), // ...
-        west_corner(radius, c, offset),       // ...
-        south_west_corner(radius, c, offset), // ...
-        south_east_corner(radius, c, offset), // ...
-        east_corner(radius, c, offset),       // We include the east corner an extra time,
-                                              // so we don't have to mess around with modulus
-    ].iter());
+    pts.extend(
+        [
+            east_corner(radius, c, offset), // Each of the corners, counter-clockwise from the east corner
+            north_east_corner(radius, c, offset), // ...
+            north_west_corner(radius, c, offset), // ...
+            west_corner(radius, c, offset), // ...
+            south_west_corner(radius, c, offset), // ...
+            south_east_corner(radius, c, offset), // ...
+            east_corner(radius, c, offset), // We include the east corner an extra time,
+                                            // so we don't have to mess around with modulus
+        ]
+        .iter(),
+    );
 }
 
 /// Fill `pts` with the points of a flat hexagon of a specific radius at a specific coordinate
@@ -116,8 +126,9 @@ pub fn flat_hexagon_normals(normals: &mut Vec<[f32; 3]>) {
 /// Fill `idx` with the indices to create a hexagon when interpreted as a triangle list
 pub fn flat_hexagon_indices(idx: &mut Vec<u32>) {
     // Each of the six faces
-    for i in 0..=6 { //           first-time     second-time
-        idx.push(0);     // Center
+    for i in 0..=6 {
+        //           first-time     second-time
+        idx.push(0); // Center
         idx.push(i + 1); // Point       East           North-east
         idx.push(i + 2); // Next point  North-east     North-west
     }
@@ -157,7 +168,13 @@ pub fn bevel_hexagon_normals(normals: &mut Vec<[f32; 3]>) {
 }
 
 /// Fill `idx` with indices to draw a quad using the 4 provided corners
-pub fn quad_indices(idx: &mut Vec<u32>, top_left: u32, top_right: u32, bottom_left: u32, bottom_right: u32) {
+pub fn quad_indices(
+    idx: &mut Vec<u32>,
+    top_left: u32,
+    top_right: u32,
+    bottom_left: u32,
+    bottom_right: u32,
+) {
     // First triangle
     idx.extend([top_left, bottom_left, bottom_right].iter());
     // Second triangle
@@ -168,7 +185,7 @@ pub fn quad_indices(idx: &mut Vec<u32>, top_left: u32, top_right: u32, bottom_le
 pub fn bevel_hexagon_indices(idx: &mut Vec<u32>) {
     // First, fill indices with the flat top hexagon
     flat_hexagon_indices(idx);
-    
+
     // Add slopes
     for i in 0..=6 {
         // Insert a quad, using the inner beveled hex, and the outer sloped hex

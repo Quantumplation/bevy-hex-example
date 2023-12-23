@@ -6,6 +6,10 @@ It was heavily inspired by two main resources:
  - [Redblobgames' excellent writeup on hex grids](https://www.redblobgames.com/grids/hexagons/#map-storage)
  - [Catlike Coding's tutorial series on hex grids in unity](https://catlikecoding.com/unity/tutorials/hex-map/)
 
+## Screen recording
+
+[bevy-hex-example.webm](https://github.com/kolbma/bevy-hex-example/assets/5228369/98a46f67-465f-4508-ad0a-4570eab237fe)
+
 ## Outline
 
 I recommend perusing the source in this order:

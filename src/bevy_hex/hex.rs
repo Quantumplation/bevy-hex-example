@@ -1,14 +1,14 @@
 /// A coordinate on a hex grid, representing distances along the various directions of travel
 /// Invariant: In order to represent a valid hex coordinate, q + r + s must equal 0
-#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct HexCoord {
     pub q: isize,
     pub r: isize,
     pub s: isize,
 }
 
-// The directions you can move on a hex grid
-#[derive(Clone, PartialEq, Eq, Debug)]
+/// The directions you can move on a hex grid
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Direction {
     None,
     North,
@@ -18,8 +18,11 @@ pub enum Direction {
     Northwest,
     Southeast,
 }
+
 impl Direction {
-    pub fn opposite(&self) -> Self {
+    /// Construct opposite [Direction]
+    #[must_use]
+    pub fn opposite(self) -> Self {
         use Direction::*;
         match self {
             None => None,
@@ -34,47 +37,60 @@ impl Direction {
 }
 
 impl HexCoord {
-    /// The origin of an infinite hex grid
-    pub fn origin() -> Self {
-        HexCoord { q: 0, r: 0, s: 0 }
-    }
     /// Construct a hex coordinate from two pieces of information, enforcing the invariant on the third
+    #[must_use]
     pub fn new(q: isize, r: isize) -> Self {
         HexCoord { q, r, s: -q - r }
     }
 
-    /// The coordinate to the north
-    pub fn north(&self) -> Self {
-        Self::new(self.q + 0, self.r - 1)
+    /// The origin of an infinite hex grid
+    #[must_use]
+    pub fn origin() -> Self {
+        HexCoord { q: 0, r: 0, s: 0 }
     }
+
+    /// The coordinate to the north
+    #[must_use]
+    pub fn north(&self) -> Self {
+        Self::new(self.q /* + 0 */, self.r - 1)
+    }
+
     /// The coordinate to the south
+    #[must_use]
     pub fn south(&self) -> Self {
-        Self::new(self.q + 0, self.r + 1)
+        Self::new(self.q /* + 0 */, self.r + 1)
     }
 
     /// The coordinate to the northeast
+    #[must_use]
     pub fn northeast(&self) -> Self {
         Self::new(self.q + 1, self.r - 1)
     }
+
     /// The coordinate to the southwest
+    #[must_use]
     pub fn southwest(&self) -> Self {
         Self::new(self.q - 1, self.r + 1)
     }
 
     /// The coordinate to the northwest
+    #[must_use]
     pub fn northwest(&self) -> Self {
-        Self::new(self.q - 1, self.r + 0)
+        Self::new(self.q - 1, self.r /* + 0 */)
     }
+
     /// The coordinate to the southeast
+    #[must_use]
     pub fn southeast(&self) -> Self {
-        Self::new(self.q + 1, self.r + 0)
+        Self::new(self.q + 1, self.r /* + 0 */)
     }
 
     /// The coordinate in a specific direction
+    #[must_use]
     pub fn neighbor(&self, dir: Direction) -> Self {
         use Direction::*;
         match dir {
-            None => self.clone(),
+            None => *self,
             North => self.north(),
             South => self.south(),
             Northeast => self.northeast(),
@@ -85,7 +101,7 @@ impl HexCoord {
     }
 
     /// Yield the neighbor coordinates, starting from North and going clockwise
-    pub fn neighbors<'a>(&'a self) -> impl Iterator<Item = HexCoord> + 'a {
+    pub fn neighbors(&self) -> impl Iterator<Item = HexCoord> + '_ {
         struct NeighborIter<'a> {
             c: &'a HexCoord,
             iter: std::slice::Iter<'a, Direction>,
@@ -93,7 +109,7 @@ impl HexCoord {
         impl<'a> Iterator for NeighborIter<'a> {
             type Item = HexCoord;
             fn next(&mut self) -> Option<Self::Item> {
-                self.iter.next().map(|d| self.c.neighbor(d.clone()))
+                self.iter.next().map(|d| self.c.neighbor(*d))
             }
         }
         NeighborIter {
@@ -123,7 +139,7 @@ mod tests {
         let mut current = HexCoord::origin();
         let mut rand = rand::thread_rng();
         for _ in 0..1000 {
-            let dir = DIRECTIONS[rand.gen_range(0..DIRECTIONS.len())].clone();
+            let dir = DIRECTIONS[rand.gen_range(0..DIRECTIONS.len())];
             current = current.neighbor(dir);
         }
     }
