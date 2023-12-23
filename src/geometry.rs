@@ -3,7 +3,7 @@ use crate::hex::HexCoord;
 /// The ratio between a circle touching the points of a hex grid (the outer radius),
 /// and a circle touching the edges of a hex grid (the inner radius).
 /// Calculated as sqrt(3) / 2;
-pub const HEX_INNER_RADIUS_RATIO: f32 = 0.866025404;
+pub const HEX_INNER_RADIUS_RATIO: f32 = 0.866_025_4;
 
 /// Generate a point located at the center of a hexagon at `c`, on a grid with hexagons of size `radius`, shifted by `offset`.
 /// The parameters are used to compose larger effects like beveling
