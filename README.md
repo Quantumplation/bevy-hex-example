@@ -8,7 +8,7 @@ It was heavily inspired by two main resources:
 
 ## Screen recording
 
-<video src="https://raw.githubusercontent.com/kolbma/bevy-hex-example/main/bevy-hex-example.webm" height="320px"></video>
+[bevy-hex-example.webm](https://github.com/kolbma/bevy-hex-example/assets/5228369/98a46f67-465f-4508-ad0a-4570eab237fe)
 
 ## Outline
 
